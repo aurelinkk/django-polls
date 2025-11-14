@@ -17,7 +17,7 @@ phases:
   pre_build:
     commands:
       - echo "Cloning the private repo using GitHub token"
-      - git clone https://$GITHUB_USER:$GITHUB_TOKEN@github.com/aurelienkk/django-polls.git source
+      - git clone https://$GH_USER:$GH_TOKEN@github.com/aurelienkk/django-polls.git source
       - cd source
       - git checkout $BRANCH
 
