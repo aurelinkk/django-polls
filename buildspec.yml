@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing dependencies"
+      - pip install --upgrade pip
+      - pip install django
+      - pip install ruff || true
+
+  pre_build:
+    commands:
+      - echo "Running Ruff lint (non-blocking)"
+      - ruff check . || true
+
+      - echo "Running Django tests"
+      - python manage.py migrate --noinput
+      - python manage.py test --noinput
+
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+  build:
+    commands:
+      - echo "Building Docker image"
+      - docker build -t django-polls .
+
+      - echo "Tagging Docker image"
+      - docker tag django-polls:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR"
+      - docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+artifacts:
+  files:
+    - "**/*"
