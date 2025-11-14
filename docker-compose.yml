@@ -1,0 +1,24 @@
+
+services:
+  python-django:
+    build: .
+    container_name: django
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    networks:
+      - django-network
+  sqlite-db:
+    image: mcp/sqlite
+    container_name: sqlite
+    volumes:
+      - ./dbdata:/data
+    networks:
+      - django-network
+
+volumes:
+  dbdata:
+
+networks:
+  django-network: {}
